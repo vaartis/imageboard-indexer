@@ -1,0 +1,155 @@
+\documentclass{article}
+
+\usepackage{hyperref}
+
+\begin{document}
+
+\section{Basic concept}
+
+This document describes the basic structure of how the scrappers
+should do their work and report progress. The language of the
+scrapper shouldn't be important, although it should have at least
+the following features:
+\begin{description}
+\item [JSON/XML]
+  Most imageboards report the iamge info in a JSON or XML format,
+  you'll need to parse those. Shouldn't be a big problem since those are popular formats.
+
+\item [MongoDB]
+  Images will be stored in a mongodb table,
+  one per scrapper, all nececcary info about the mongo instance will be provided
+  in the configuration file
+
+\item [TOML]
+  Configuration files for scrapers will have uniform format, which
+  shall be expressed in TOML
+
+\item [Command line parsing]
+  The scrapper should expose at least the following command line
+  arguments in a standard UNIX-y way (-a/--argument):
+
+  \begin{description}
+  \item [-h/--help]
+    A detailed(-ish) description of \textit{additional} options accepted by the scrapper's
+    config file, as well as command line arguments. Options should be described in a way
+    that is obviously representable with toml. Command line arguments are provided
+    for the user to launch the scrapper and/or get the information
+    about it.
+
+  \item [-d/--default-config]
+    This option should dump the default configuration to the stdout in a
+    toml (subject to change) format, so the user could use it if something goes wrong.
+
+  \item [-c/--config]
+    Path to the \textit{config.toml} file, defaults to the \textit{arg0/config.toml}
+
+  \end{description}
+
+\item [HTTP Client] The scrapper, obviously, should take the content
+  from somewhere, thus your language needs to have a HTTP client,
+  obviously those with JSON integration would be better and easier for
+  you to use.
+\end{description}
+
+\pagebreak
+
+\section{Configuration}
+
+It is yet unclear on what should we use, mongo or rethinkdb, so both are included.
+
+The following list describes the minimal list of settings that the scrapper
+should understand, those are provided via the config.toml (a TOML file),
+italics mark a group (just for disctinciton):
+
+\begin{description}
+\item [\textit{general}] \hfill
+  \begin{description}
+    \item [name] Scrapper name, presumably the board it scraps from and language it's written in,
+      e.g. \textit{safebooru-py}
+    \item [tags] Tags that the scrapper should index, none by default (index everything)
+    \item [blacklisted-tags] Tags the scrapper should ignore/blacklist, none by default
+    \item [start] A command to launch the scrapper, this is needed for the frontend,
+      so one could launch the scrapper via the UI\. An implementation must provide a default,
+      e.g. "python \{absolute path to file\}"
+  \end{description}
+
+\item [\textit{rethink}] \hfill
+  \begin{description}
+  \item [db] Database name, \textit{imageboard\_indexer} by default. This should be a primary key.
+  \item [address] RethinkDB address, "localhost" by default.
+  \item [port] RethinkDB port, 28015 be default.
+  \item [table] RethinkDB table in the database, a default should be provided by the implementation.
+  \end{description}
+
+\item [\textit{mongo}] \hfill
+  \begin{description}
+  \item [connection-string] MongoDB connection string in a standard format, more info at
+    \href{https://docs.mongodb.com/manual/reference/connection-string/}{MongoDB documentaion}
+
+  \item [collection] MongoDB collection to which the image info should be written, scrapper
+    implementation may use it's name if this option is not supplied.
+  \end{description}
+
+\item [\textit{images}] \hfill
+  \begin{description}
+  \item [save-path] An absolute path to a directory where images should be saved.
+    Nonexisting directory is considered a \textbf{error}.
+    Implementation must ensure that the path is absolute, because the scrapper
+    and frontend are completely separate programms and relative pathes \textit{will} differ.
+  \item [ignore-extensions] Files of this extensions should be ignored by the scrapper,
+    suggested default is "webm". Extensions are specified \textbf{without} the dot.
+  \item [metadata-only] Should the scrapper actually download the images or
+    just add the information about their location in the database, marking that
+    this image only has metadata
+  \end{description}
+
+\end{description}
+
+\pagebreak
+
+\section{Image data structure}
+
+This section describes how images are stored in the database. Note, that every scrapper must
+put images into a separate collection. Image data structure is as following:
+
+\begin{description}
+\item [id] Integer, id of the original image and the primary key
+\item [height] Integer, image height
+\item [width] Integer, image width
+\item [score] Integer, image score
+\item [name] String, image name
+\item [extension] String, image file extension, like \textit{.jpg}
+\item [originalPost] String, link to the original image post
+\item [tags] Array of String, image tags
+\item [md5] String, image md5 sum
+\end{description}
+
+The following fields only exist if the image was
+downloaded in the metadata-only mode:
+
+\begin{description}
+\item [metedataOnly] Marker that an image only has metadata, should be true.
+  Might be set to false when the image is downloaded on the UI demand.
+\item [originalImage] URL of of the original image
+\item [orignalThumbnail] URL of the original image preview
+\item
+\end{description}
+
+\pagebreak
+
+\section{Scrapper info table}
+
+Every scrapper should put information about itself into a special talbe
+called \textit{scrappers\_info} in the database. This table contains general
+info for the frontend, this info includes scrapper name,
+where to find scrapped pictures, how to launch the scrapper and where to find it's logs
+
+\begin{description}
+\item [name] Scrapper name, this should be identical to the name specified in config.toml
+\item [table] Scrapper table where it puts the pictures
+\item [imagesPath] Path where frontend should search the pictures
+\item [start] A command to start the scrapper from frontend, e.g. "\textit{ruby absolute/path/to/scrapper.rb --config x/config.toml}"
+\item [log] Where the scrapper stores it's logs, should be an absolute path or "stdout" if it just prints them
+\end{description}
+
+\end{document}

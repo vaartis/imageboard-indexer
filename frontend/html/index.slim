@@ -1,0 +1,15 @@
+doctype html
+html
+  head
+    script src="https://vuejs.org/js/vue.js"
+    script src="https://unpkg.com/axios/dist/axios.min.js"
+    script src="http://underscorejs.org/underscore-min.js"
+    title Imageboard indexer
+    h1 Imageboard indexer
+    hr
+  body
+    div#images-list
+      div v-for="image in images" v-bind:key="image.id"
+        img v-bind:src="image.originalImage"
+
+    script src="/js/index.js"
