@@ -7,6 +7,7 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 gem "sinatra", "~>2.0.0"
 gem "sinatra-contrib", "~>2.0.0"
 gem "thin"
+gem "sass"
 gem "json"
 
 gem "slim", "~>3.0.9"

@@ -4,12 +4,12 @@ html
     script src="https://vuejs.org/js/vue.js"
     script src="https://unpkg.com/axios/dist/axios.min.js"
     script src="http://underscorejs.org/underscore-min.js"
+    link rel="stylesheet" type="text/css" href="/css/index.css"
     title Imageboard indexer
     h1 Imageboard indexer
     hr
   body
     div#images-list
-      div v-for="image in images" v-bind:key="image.id"
-        img v-bind:src="image.originalImage"
+      img#image v-for="image in images" v-bind:key="image.id" v-bind:src="image.originalThumbnail"
 
     script src="/js/index.js"

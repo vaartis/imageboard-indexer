@@ -6,21 +6,31 @@ Bundler.setup(:default)
 require "sinatra/base"
 require "sinatra/reloader"
 require "sinatra/streaming"
-
+require "sass"
 require "json"
 
 require "rethinkdb"
 include RethinkDB::Shortcuts
 
+class ScssHandler < Sinatra::Base
+
+    set :views, __dir__ + '/../public/scss/'
+
+    get '/css/*.css' do
+        filename = params[:splat].first
+        scss filename.to_sym
+    end
+
+end
 
 class Indexer < Sinatra::Base
-  set server: 'thin'
+  set :server => 'thin',
+      :root => __dir__ + "/..",
+      :views =>__dir__ + "/../html",
+      :stream_connections => []
 
+  use ScssHandler
   helpers Sinatra::Streaming
-
-  set :root, __dir__ + "/.."
-  set :views, __dir__ + "/../html"
-  set :stream_connections, []
 
   def initialize
     @conn = r.connect()
