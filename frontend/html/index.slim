@@ -1,15 +1,24 @@
 doctype html
 html
   head
+    script src="http://underscorejs.org/underscore-min.js"
     script src="https://vuejs.org/js/vue.js"
     script src="https://unpkg.com/axios/dist/axios.min.js"
-    script src="http://underscorejs.org/underscore-min.js"
+
+    link [rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"]
     link rel="stylesheet" type="text/css" href="/css/index.css"
     title Imageboard indexer
-    h1 Imageboard indexer
-    hr
-  body
-    div#images-list
-      img#image v-for="image in images" v-bind:key="image.id" v-bind:src="image.originalThumbnail"
+body
+  div#all
+    div.navbar.navbar-light.bg-light
+      span.navbar-brand Imageboard indexer
+      form.form-inline
+        input.form-check-input type="checkbox" id="displayWholeImagesCheckbox" v-model="displayWholeImages"
+        label.form-check-label for="displayWholeImagesCheckbox"
+          | Display full images
 
-    script src="/js/index.js"
+    div#images-list.container-fluid
+      img.image.img-thumbnail v-for="image in images" v-bind:key="image.id" v-bind:src="selectImageDisplayLink(image)"
+
+  script src="/js/index.js"

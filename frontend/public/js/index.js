@@ -1,17 +1,29 @@
 let vm = new Vue({
-    el: "div#images-list",
+    el: "div#all",
     data: {
-        images: []
+        images: [],
+        displayWholeImages: false
+    },
+
+    methods: {
+        selectImageDisplayLink: function(image) {
+            if (_.has(image, 'metadataOnly')) {
+                return this.displayWholeImages ? image.originalImage : image.originalThumbnail;
+            } else {
+                throw "Link deciding for non-metadata-only images is not implemented yet";
+            }
+        }
     },
 
     mounted() {
         axios.get("/get_images").then(response => {
             this.images = response.data;
-        })
+        });
     }
 });
 
 window.onload = function() {
+    /*
     let es = new EventSource("/new_images");
 
     es.onmessage = function(e) {
@@ -20,4 +32,5 @@ window.onload = function() {
     es.onerror = function(e) {
         // console.log(e);
     }
+    */
 }
