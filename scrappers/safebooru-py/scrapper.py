@@ -141,7 +141,7 @@ async def _load_images_impl(conn, cl_session, pages_semaphore, images_semaphore,
                 if config["images"]["metadata-only"]:
                     result["metadataOnly"] = True
                     result["originalImage"] = image_link
-                    result["originalThumbnail"] = f"https://safebooru.org/thumbnails/{pst['directory']}/thumbnail_{splitext(pst['image'])[0] + '.jpg'}"
+                    result["originalThumbnail"] = f"https://safebooru.org/thumbnails/{pst['directory']}/thumbnail_{pst['image']}"
 
                 if result["extension"][1:] not in config["images"]["ignore-extensions"]:
                     # Only download images if not in metadata-only mode
