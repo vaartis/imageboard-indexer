@@ -1,12 +1,13 @@
+
 [general]
 name = "tbib-rb"
-tags = ["sweater", "girl"]
-
-[rethink]
-db = "imageboard_indexer"
-address = "localhsot"
-port = 28015
-table = "tbib"
+tags = ["dark_elf"]
 
 [images]
 path = "images/"
+
+[rethink]
+address = "localhost"
+db = "imageboard_indexer"
+port = 28015
+table = "tbib"

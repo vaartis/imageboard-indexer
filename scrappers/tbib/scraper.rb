@@ -50,18 +50,23 @@ OptionParser.new do |ops|
 		exit 0
 	end
 
-	ops.on('-d', '--default-config', 'Makes the scraper use the default configuration options.') do
-		$config.server_ip = 'localhost'
-		$config.server_port = 28015
-		$config.save_path = 'images/'
-		$config.name = 'tbib-rb'
-		$config.database = 'imageboard_indexer'
-		$config.table = 'tbib'
-		$config.tags = ["touhou"]
-
-		$log.log 'Set default configuration!'
-		$log.log $config.info
-		has_config = true
+	ops.on('-d', '--default-config', 'Outputs the default configuration sheet to stdout.') do
+		puts TOML::Generator.new({
+			:general => {
+					:name => 'tbib-rb',
+					:tags => ['dark_elf']
+				},
+			:rethink => {
+					:address => 'localhost',
+					:port => 28015,
+					:db => 'imageboard_indexer',
+					:table => 'tbib'
+				},
+			:images => {
+				:path => 'images/'
+			}
+		}).body
+		exit 0
 	end
 
 	ops.on('-cPATH', '--config=PATH', 'Specifies a configuration file the scraper should load.') do |c|

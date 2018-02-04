@@ -4,10 +4,13 @@ class Tbib
 	def initialize()
 		@conn = r.connect(:host => $config.server_ip, :port => $config.server_port)
 		$log.log 'connected to database!'
+		if !r.db_list().run(@conn).include?($config.database)
+			r.db_create($config.database).run(@conn)
+		end
 		@conn.use($config.database)
 		@mutex = Mutex.new
 		if !r.table_list.run(@conn).include?($config.table)
-			r.table_create($config.table).run(@conn)
+			r.table_create($config.table, :primary_key => 'id').run(@conn)
 			$log.log "Created table #{$config.table} at #{$config.db}."
 		else
 			$log.log "Table #{$config.table} already exists."
@@ -32,24 +35,32 @@ class Tbib
 		procs = []
 		(0..(c/100 + (c%100 == 0 ? 0 : 1))).to_a.each do |pid|
 			procs << proc {
-				Thread.new do
+				Thread.start do |t|
 					url = "https://tbib.org/index.php?page=dapi&s=post&q=index&tags=#{$config.tags.join('+')}&json=1&pid=#{pid}"
-					j = JSON.parse(open(url).read)
+					retr_counter = 0
 					@mutex.synchronize do
-						images += j
+						begin
+							images += JSON.parse(open(url).read)
+						rescue => e
+							$log.error e
+							t.kill unless retr_counter < 4
+							retr_counter += 1
+							retry
+						end
+						sleep 0.1
 					end
 				end
 			}
 		end
 		ol = procs.length.to_f
 		while !procs.empty?
-			$log.progress "Downloading images...", 1.0 - procs.length.to_f/ol
+			$log.log "Downloading images... #{procs.length}" #, 1.0 - procs.length.to_f/ol
 			b = procs.shift(8)
 			b.each_with_index { |d, i| b[i] = d.call }
 			b.each { |d| d.join }
 			sleep 1
 		end
-		$log.progress "Done.", 1.0
+		$log.log "Done."#,1.0
 		puts ''
 
 		$log.log "Number of images looted: #{images.length}"
