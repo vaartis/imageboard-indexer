@@ -1,10 +1,11 @@
 
 [general]
 name = "tbib-rb"
-tags = ["dark_elf"]
+tags = ["souji_(senran_kagura)"]
 
 [images]
-path = "images/"
+metadata_only = false
+path = "/home/anko/imageboard-indexer/scrappers/tbib/images/"
 
 [rethink]
 address = "localhost"

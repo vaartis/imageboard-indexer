@@ -54,7 +54,7 @@ class Tbib
 		end
 		ol = procs.length.to_f
 		while !procs.empty?
-			$log.log "Downloading images... #{procs.length}" #, 1.0 - procs.length.to_f/ol
+			$log.log "Fetching images... #{procs.length}" #, 1.0 - procs.length.to_f/ol
 			b = procs.shift(8)
 			b.each_with_index { |d, i| b[i] = d.call }
 			b.each { |d| d.join }
@@ -64,6 +64,17 @@ class Tbib
 		puts ''
 
 		$log.log "Number of images looted: #{images.length}"
+
+		$log.log 'Downloading images... '
+		images.each do |x|
+			bytes = open("https://tbib.org//images/#{x['directory']}/#{x['image']}?#{x['id']}").read
+			filename = $config.save_path + x['image']
+			File.open(filename, 'wb') do |f|
+				f.write bytes
+				f.close
+			end
+			print '.'
+		end
 
 		r.table($config.table).insert(images.inject([]) do |sum, x|
 			sum << {
@@ -76,9 +87,10 @@ class Tbib
 				'originalPost' => "https://tbib.org/index.php?page=post&s=view&id=#{x['id']}",
 				'tags' => x['tags'].split(' '),
 				'md5' => x['hash'],
-				'metadataOnly' => true,
+				'metadataOnly' => $config.metadata,
 				'originalImage' => "https://tbib.org//images/#{x['directory']}/#{x['image']}?#{x['id']}",
-				'originalThumbnail' => "https://tbib.org/thumbnails/#{x['directory']}/thumbnail_#{x['image']}?#{x['id']}"
+				'originalThumbnail' => "https://tbib.org/thumbnails/#{x['directory']}/thumbnail_#{x['image']}?#{x['id']}",
+				'savePath' => $config.metadata ? nil : $config.save_path
 			}
 		end).run(@conn)
 

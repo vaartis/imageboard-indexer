@@ -3,7 +3,7 @@ File.open('gems.txt', 'r').read.split("\n").each { |x| require x }
 Dir['lib/*.rb'].each { |x| require_relative x }
 $log = Logger.new
 
-Config = Struct.new(:server_ip, :server_port, :save_path, :name, :database, :table, :tags) do
+Config = Struct.new(:server_ip, :server_port, :save_path, :name, :database, :table, :tags, :metadata) do
 	def info
 		ret = "\n"
 		[[server_port, 'Server Port'],
@@ -12,7 +12,8 @@ Config = Struct.new(:server_ip, :server_port, :save_path, :name, :database, :tab
 		[name, 'Name'],
 		[database, 'Database'],
 		[table, 'Table'],
-		[tags, 'Tags']].each do |t|
+		[tags, 'Tags'],
+		[metadata, 'Metadata-Only']].each do |t|
 			a = t[0]
 			b = t[1]
 			ret << " * #{b}: #{a.is_a?(Array) ? a.to_s : a}\n"
@@ -28,7 +29,8 @@ Config = Struct.new(:server_ip, :server_port, :save_path, :name, :database, :tab
 		[name, 'Name'],
 		[database, 'Database'],
 		[table, 'Table'],
-		[tags, 'Tags']].each do |t|
+		[tags, 'Tags'],
+		[metadata, 'Metadata-Only']].each do |t|
 			if t[0].nil?
 				marr << "Value '#{t[1]}' is missing from the configuration file!"
 			end
@@ -38,7 +40,7 @@ Config = Struct.new(:server_ip, :server_port, :save_path, :name, :database, :tab
 	end
 end
 
-$config = Config.new nil, nil, nil, nil, nil
+$config = Config.new nil, nil, nil, nil, nil, nil
 
 has_config = false
 
@@ -63,7 +65,8 @@ OptionParser.new do |ops|
 					:table => 'tbib'
 				},
 			:images => {
-				:path => 'images/'
+				:path => Dir.pwd + '/images/',
+				:metadata_only => true
 			}
 		}).body
 		exit 0
@@ -83,6 +86,7 @@ OptionParser.new do |ops|
 			$config.database = toml['rethink']['db']
 			$config.table = toml['rethink']['table']
 			$config.tags = toml['general']['tags']
+			$config.metadata = toml['images']['metadata_only']
 		end
 		$config.verify!
 		$log.log "Set configuration according to #{c}!"
