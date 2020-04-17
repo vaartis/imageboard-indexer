@@ -1,0 +1,14 @@
+
+[general]
+name = "tbib-rb"
+tags = ["souji_(senran_kagura)"]
+
+[images]
+metadata_only = false
+path = "/home/anko/imageboard-indexer/scrappers/tbib/images/"
+
+[rethink]
+address = "localhost"
+db = "imageboard_indexer"
+port = 28015
+table = "tbib"

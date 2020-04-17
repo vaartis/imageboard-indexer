@@ -1,0 +1,7 @@
+colorize
+optparse
+toml
+rethinkdb
+thread
+open-uri
+nokogiri
